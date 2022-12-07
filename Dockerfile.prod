@@ -1,0 +1,41 @@
+FROM golang:alpine AS builder
+
+WORKDIR /app
+#COPY go.mod usr/local/go
+#COPY main.go usr/local/go/src/desafio-go
+
+COPY . .
+
+RUN go mod download
+RUN go mod verify
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o desafio-go .
+
+FROM scratch
+
+WORKDIR /app
+COPY --from=builder /app .
+ENTRYPOINT [ "./desafio-go" ]
+
+#COPY go.mod ./
+#COPY go.sum ./
+#RUN go mod download
+#COPY *.go ./
+#RUN go build -o /full-cycle-docker-go
+#CMD ["/full-cycle-docker-go"]
+
+#FROM alpine:3.16
+#RUN rm -rf /var/cache/apk/* && \
+#    rm -rf /tmp/*
+#RUN apk update
+#RUN apk add neofetch
+#RUN neofetch
+#RUN wget https://go.dev/dl/go1.19.3.linux-amd64.tar.gz
+#RUN tar -C /usr/local -xzf go1.19.3.linux-amd64.tar.gz
+#RUN apk add --no-cache --virtual .build-deps bash gcc musl-dev openssl go
+#RUN export PATH=$PATH:/usr/local/go/bin
+#RUN export GOPATH=/opt/go/
+#RUN export PATH=$PATH:$GOPATH/bin
+#RUN apk del .build-deps 
+#ENTRYPOINT [ "go version" ]
+#COPY --from=builder /app /usr/local/go
